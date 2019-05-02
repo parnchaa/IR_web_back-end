@@ -53,7 +53,18 @@ app.get('/rule', (req, res) => {
 app.post('/addstaff', (req, res) => {
   console.log(req.body)
   con.query(`
-    insert into users (firstName,lastName,userID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.userID}')
+    insert into users (firstName,lastName,userID,userTel,userEmail) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.userID}', '${req.body.userTel}', '${req.body.userEmail}')
+    `, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  }); 
+})
+
+app.post('/addsecurityguard', (req, res) => {
+  console.log(req.body)
+  con.query(`
+    insert into users (firstName,lastName,userID.userTel.userEmail) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.userID}', '${req.body.userTel}', '${req.body.userEmail}')
     `, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
@@ -73,7 +84,16 @@ app.post('/addrule', (req, res) => {
 })
 
 
-
+app.post('/addlocation', (req, res) => {
+  console.log(req.body)
+  con.query(`
+    insert into location (locationID,locationName,locationCode) values('${req.body.locationID}', '${req.body.locationName}', '${req.body.locationCode}')
+    `, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
 
 
 con.connect(err=> {
