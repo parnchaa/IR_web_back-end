@@ -11,15 +11,15 @@ app.use(bodyParser.json())
 
 
 var con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
+  host: "54.251.180.67",
+  user: "parn",
+  password: "irdb2019",
   database: "ir_parking"
 });
 
 
 app.get('/problem', (req, res) => {
-    con.query("select dateOfProblem, timeOfProblem, sence, licensePlate, allegation, countProblems,securityGuardUserName, problemDetails from securityguards s JOIN problems p on s.securityGuardID = p.securityGuardID JOIN problemtype pt on p.problemTypeID = pt.problemTypeID join trafficticket t on p.ticketID = t.ticketID join car c on t.carID = c.carID", function (err, result, fields) {
+    con.query("select p.problemID, p.dateOfProblem, p.timeOfProblem, p.scene, c.licensePlate, pt.allegation, c.countProblems,s.firstName, p.problemDetails from Staffs s JOIN Problems p on s.staffID = p.staffID JOIN ProblemType pt on p.problemTypeID = pt.problemTypeID join TrafficTicket t on p.ticketID = t.ticketID join Car c on t.carID = c.carID", function (err, result, fields) {
       if (err) throw err;
       console.log(result);
       res.json(result)
@@ -27,7 +27,7 @@ app.get('/problem', (req, res) => {
 })
 
 app.get('/staff', (req, res) => {
-  con.query("select firstName,lastName, userID from users u join adminstrators a on u.userID = a.adminID", function (err, result, fields) {
+  con.query("select firstName,lastName, staffTel, staffEmail from Staffs where staffRole = 'Administrator'", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -35,7 +35,7 @@ app.get('/staff', (req, res) => {
 })
 
 app.get('/securityguard', (req, res) => {
-  con.query("select firstName,lastName, userID from users u join securityguards s on u.userID = s.securityGuardID", function (err, result, fields) {
+  con.query("select firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -43,7 +43,7 @@ app.get('/securityguard', (req, res) => {
 })
 
 app.get('/rule', (req, res) => {
-  con.query("select ruleID, ruleName, maxWarnning, price from internalrules", function (err, result, fields) {
+  con.query("select ruleName, maxWarning, price, ruleDetails from InternalRules", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -53,7 +53,7 @@ app.get('/rule', (req, res) => {
 app.post('/addstaff', (req, res) => {
   console.log(req.body)
   con.query(`
-    insert into users (firstName,lastName,userID,userTel,userEmail) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.userID}', '${req.body.userTel}', '${req.body.userEmail}')
+    insert into Staffs (firstName,lastName,staffTel,staffEmail,staffRole) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', 'Administrator')
     `, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
@@ -64,7 +64,7 @@ app.post('/addstaff', (req, res) => {
 app.post('/addsecurityguard', (req, res) => {
   console.log(req.body)
   con.query(`
-    insert into users (firstName,lastName,userID.userTel.userEmail) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.userID}', '${req.body.userTel}', '${req.body.userEmail}')
+    insert into Staffs (firstName,lastName,staffTel,staffEmail,staffRole) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', 'Security Guard' )
     `, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
@@ -75,7 +75,7 @@ app.post('/addsecurityguard', (req, res) => {
 app.post('/addrule', (req, res) => {
   console.log(req.body)
   con.query(`
-    insert into internalrules (ruleID,ruleName,maxWarnning,price) values('${req.body.ruleID}', '${req.body.ruleName}', '${req.body.maxWarnning}', '${req.body.price}')
+    insert into InternalRules (ruleName ,maxWarning ,price ,ruleDetails, problemTypeID,organizationID) values('${req.body.ruleName}', '${req.body.maxWarning}', '${req.body.price}', '${req.body.ruleDetails}', 1 , 1)
     `, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
@@ -87,8 +87,16 @@ app.post('/addrule', (req, res) => {
 app.post('/addlocation', (req, res) => {
   console.log(req.body)
   con.query(`
-    insert into location (locationID,locationName,locationCode) values('${req.body.locationID}', '${req.body.locationName}', '${req.body.locationCode}')
+    insert into Location (locationName,locationCode,stickerID) values('${req.body.locationName}', '${req.body.locationCode}',1)
     `, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
+
+app.get('/location', (req, res) => {
+  con.query("select  locationName, locationCode from Location", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
