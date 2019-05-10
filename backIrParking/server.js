@@ -53,7 +53,7 @@ app.get('/rule', (req, res) => {
 app.post('/addstaff', (req, res) => {
   console.log(req.body)
   con.query(`
-    insert into Staffs (firstName,lastName,staffTel,staffEmail,staffRole) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', 'Administrator')
+    insert into Staffs (firstName,lastName,staffTel,staffEmail,staffRole,organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', 'Administrator', 1)
     `, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
@@ -64,7 +64,7 @@ app.post('/addstaff', (req, res) => {
 app.post('/addsecurityguard', (req, res) => {
   console.log(req.body)
   con.query(`
-    insert into Staffs (firstName,lastName,staffTel,staffEmail,staffRole) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', 'Security Guard' )
+    insert into Staffs (firstName,lastName,staffTel,staffEmail,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', 'Security Guard',1 )
     `, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
