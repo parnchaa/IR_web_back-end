@@ -1,8 +1,8 @@
 FROM node:10.15.1
 RUN mkdir /app
 WORKDIR /app
-COPY ./package.json /app
+COPY ./IR_web_back-end/package.json /app
 RUN npm install
-COPY . /app
+COPY ./IR_web_back-end /app
 EXPOSE 5000
 CMD ["npm","start"]
