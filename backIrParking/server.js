@@ -5,16 +5,17 @@ var bodyParser = require('body-parser')
 const app = express()
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
+require('dotenv').config()
  
 // parse application/json
 app.use(bodyParser.json())
 
 
 var con = mysql.createConnection({
-  host: "54.251.180.67",
-  user: "parn",
-  password: "irdb2019",
-  database: "ir_parking"
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE
 });
 
 
