@@ -5,4 +5,4 @@ COPY ./backIrParking/package.json /app
 RUN npm install
 COPY ./backIrParking /app
 EXPOSE 5000
-CMD ["nodemon","server.js"]
+CMD ["node","server.js"]
