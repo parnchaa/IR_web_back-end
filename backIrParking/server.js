@@ -5,17 +5,16 @@ var bodyParser = require('body-parser')
 const app = express()
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
-require('dotenv').config()
  
 // parse application/json
 app.use(bodyParser.json())
 
 
 var con = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE
+  host: "52.221.238.171",
+  user: "parn",
+  password: "irdb2019",
+  database: "ir_parking"
 });
 
 con.connect(err=> {
@@ -24,7 +23,7 @@ con.connect(err=> {
   })
 
   app.get('/problem', (req, res) => {
-    con.query("select p.problemID, p.dateOfProblem, p.timeOfProblem, p.scene, c.licensePlate, pt.allegation,s.firstName, p.problemDetails from Staffs s JOIN Problems p on s.staffID = p.staffID JOIN ProblemType pt on p.problemTypeID = pt.problemTypeID join TrafficTicket t on p.ticketID = t.ticketID join Car c on t.carID = c.carID", function (err, result, fields) {
+    con.query("select p.problemID, p.dateOfProblem, p.timeOfProblem, p.scene, c.licensePlate, pt.allegation, s.firstName, p.problemDetails from Staffs s JOIN Problems p on s.staffID = p.staffID JOIN ProblemType pt on p.problemTypeID = pt.problemTypeID join TrafficTicket t on p.ticketID = t.ticketID join Car c on t.carID = c.carID", function (err, result, fields) {
       if (err) throw err;
       console.log(result);
       res.json(result)
@@ -39,25 +38,25 @@ app.get('/staff', (req, res) => {
   });
 })
 
-app.get('/securityguard', async (req, res) => {
-  await con.query("select firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
+app.get('/securityguard', (req, res) => {
+  con.query("select firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
   });
 })
 
-app.get('/rule', async (req, res) => {
-  await con.query("select ruleName, maxWarning, price, ruleDetails from InternalRules", function (err, result, fields) {
+app.get('/rule', (req, res) => {
+  con.query("select ruleID ,ruleName, maxWarning, price, ruleDetails from InternalRules", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
   });
 })
 
-app.post('/addstaff',async (req, res) => {
+app.post('/addstaff', (req, res) => {
   console.log(req.body)
-  await con.query(`
+  con.query(`
     insert into Staffs (firstName,lastName,staffTel,staffEmail,staffRole,organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', 'Administrator', 1)
     `, function (err, result, fields) {
     if (err) throw err;
@@ -66,9 +65,9 @@ app.post('/addstaff',async (req, res) => {
   }); 
 })
 
-app.post('/addsecurityguard',async (req, res) => {
+app.post('/addsecurityguard', (req, res) => {
   console.log(req.body)
-  await con.query(`
+  con.query(`
     insert into Staffs (firstName,lastName,staffTel,staffEmail,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', 'Security Guard',1 )
     `, function (err, result, fields) {
     if (err) throw err;
@@ -77,9 +76,9 @@ app.post('/addsecurityguard',async (req, res) => {
   }); 
 })
 
-app.post('/addrule',async (req, res) => {
+app.post('/addrule', (req, res) => {
   console.log(req.body)
-  await con.query(`
+  con.query(`
     insert into InternalRules (ruleName ,maxWarning ,price ,ruleDetails, problemTypeID,organizationID) values('${req.body.ruleName}', '${req.body.maxWarning}', '${req.body.price}', '${req.body.ruleDetails}', 1 , 1)
     `, function (err, result, fields) {
     if (err) throw err;
@@ -89,9 +88,9 @@ app.post('/addrule',async (req, res) => {
 })
 
 
-app.post('/addlocation', async (req, res) => {
+app.post('/addlocation', (req, res) => {
   console.log(req.body)
-  await con.query(`
+  con.query(`
     insert into Location (locationName,locationCode,stickerID) values('${req.body.locationName}', '${req.body.locationCode}',1)
     `, function (err, result, fields) {
     if (err) throw err;
@@ -100,13 +99,38 @@ app.post('/addlocation', async (req, res) => {
   });
 })
 
-app.get('/location', async (req, res) => {
-  await con.query("select  locationName, locationCode from Location", function (err, result, fields) {
+app.get('/location', (req, res) => {
+  con.query("select  locationName, locationCode from Location", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
   });
 })
 
+// app.get('/deleteAdmin', (req, res) => {
+//   con.query(`delete from Staffs where ${req.body.staffID}`, function (err, result, fields) {
+//     if (err) throw err;
+//     console.log(result);
+//     res.json(result)
+//   });
+// })
+
+app.post('/deleteRule', (req, res) => {
+  console.log(req.body.ruleID)
+  con.query(`Delete from InternalRules where ruleID = ${req.body.ruleID}`, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
+
+app.get('/carOwner', (req, res) => {
+  con.query("select  carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress from CarOwners", function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
 
 })
+
