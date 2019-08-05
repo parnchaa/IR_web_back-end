@@ -125,12 +125,19 @@ app.post('/deleteRule', (req, res) => {
 })
 
 app.get('/carOwner', (req, res) => {
-  con.query("select  carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress from CarOwners", function (err, result, fields) {
+  con.query("select  carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress,registerDate, expiredDate from CarOwners", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
   });
 })
 
+app.post('/editCarOwner', (req, res) => {
+  con.query("update CarOwners set carOwnerFirstName, carOwnerLastName, carOwnerEmail, carOwnerTel  ", function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
 })
 
