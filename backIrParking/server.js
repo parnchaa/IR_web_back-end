@@ -11,7 +11,7 @@ app.use(bodyParser.json())
 
 
 var con = mysql.createConnection({
-  host: "52.221.238.171",
+  host: "52.221.203.102",
   user: "parn",
   password: "irdb2019",
   database: "ir_parking"
@@ -30,8 +30,16 @@ con.connect(err=> {
     });
 })
 
+app.post('/deleteEvent', (req, res) => {
+  con.query(`Delete from Problems where problemID = ${req.body.problemID}`, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
+
 app.get('/staff', (req, res) => {
-  con.query("select firstName,lastName, staffTel, staffEmail from Staffs where staffRole = 'Administrator'", function (err, result, fields) {
+  con.query("select staffID, firstName,lastName, staffTel, staffEmail from Staffs where staffRole = 'Administrator'", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -65,6 +73,16 @@ app.post('/addstaff', (req, res) => {
   }); 
 })
 
+
+app.post('/deleteStaff', (req, res) => {
+  console.log(req.body.ruleID)
+  con.query(`Delete from Staffs where staffID = ${req.body.staffID}`, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
+
 app.post('/addsecurityguard', (req, res) => {
   console.log(req.body)
   con.query(`
@@ -87,7 +105,6 @@ app.post('/addrule', (req, res) => {
   });
 })
 
-
 app.post('/addlocation', (req, res) => {
   console.log(req.body)
   con.query(`
@@ -107,14 +124,6 @@ app.get('/location', (req, res) => {
   });
 })
 
-// app.get('/deleteAdmin', (req, res) => {
-//   con.query(`delete from Staffs where ${req.body.staffID}`, function (err, result, fields) {
-//     if (err) throw err;
-//     console.log(result);
-//     res.json(result)
-//   });
-// })
-
 app.post('/deleteRule', (req, res) => {
   console.log(req.body.ruleID)
   con.query(`Delete from InternalRules where ruleID = ${req.body.ruleID}`, function (err, result, fields) {
@@ -125,7 +134,7 @@ app.post('/deleteRule', (req, res) => {
 })
 
 app.get('/carOwner', (req, res) => {
-  con.query("select  carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress,registerDate, expiredDate from CarOwners", function (err, result, fields) {
+  con.query("select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -133,11 +142,29 @@ app.get('/carOwner', (req, res) => {
 })
 
 app.post('/editCarOwner', (req, res) => {
-  con.query("update CarOwners set carOwnerFirstName, carOwnerLastName, carOwnerEmail, carOwnerTel  ", function (err, result, fields) {
+  con.query(`UPDATE CarOwners SET carOwnerFirstName = '${req.body.carOwnerFirstName}', carOwnerLastName= '${req.body.carOwnerLastName}', carOwnerEmail= '${req.body.carOwnerEmail}',carOwnerTel= '${req.body.carOwnerTel}',carOwnerAddress= '${req.body.carOwnerAddress}' where carOwnerID = '${req.body.carOwnerID}'`, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
   });
 })
+
+app.post('/deleteCarOwner', (req, res) => {
+  con.query(`Delete from CarOwners where carOwnerID = ${req.body.carOwnerID}`, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
 })
+
+app.post('/editRule', (req, res) => {
+  con.query(`UPDATE InternalRules SET ruleName = '${req.body.ruleName}', maxWarning= '${req.body.maxWarning}', price= '${req.body.price}',ruleDetails= '${req.body.ruleDetails}' where ruleID = '${req.body.ruleID}'`, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
+
+})
+
 
