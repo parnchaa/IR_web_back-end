@@ -47,7 +47,7 @@ app.get('/staff', (req, res) => {
 })
 
 app.get('/securityguard', (req, res) => {
-  con.query("select firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
+  con.query("select firstName,lastName,staffTel, staffEmail, staffPassword from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -86,7 +86,7 @@ app.post('/deleteStaff', (req, res) => {
 app.post('/addsecurityguard', (req, res) => {
   console.log(req.body)
   con.query(`
-    insert into Staffs (firstName,lastName,staffTel,staffEmail,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', 'Security Guard',1 )
+    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages, staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', '${req.body.staffPassword}' , '${req.body.staffImages}', 'Security Guard',1 )
     `, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
@@ -116,8 +116,27 @@ app.post('/addlocation', (req, res) => {
   });
 })
 
+app.post('/addLocationLabel', (req, res) => {
+  console.log(req.body)
+  con.query(`
+    insert into Location (locationName,locationCode,stickerID) values('${req.body.locationName}', '${req.body.locationCode}',1)
+    `, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
+
 app.get('/location', (req, res) => {
   con.query("select  locationName, locationCode from Location", function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
+
+app.get('/locationCode', (req, res) => {
+  con.query("select locationCode from Location", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -164,6 +183,8 @@ app.post('/editRule', (req, res) => {
     res.json(result)
   });
 })
+
+
 
 })
 
