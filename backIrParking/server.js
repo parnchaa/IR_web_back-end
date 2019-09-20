@@ -47,7 +47,7 @@ app.get('/staff', (req, res) => {
 })
 
 app.get('/securityguard', (req, res) => {
-  con.query("select firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
+  con.query("select staffID, firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -75,7 +75,7 @@ app.post('/addstaff', (req, res) => {
 
 
 app.post('/deleteStaff', (req, res) => {
-  console.log(req.body.ruleID)
+  // console.log(req.body.ruleID)
   con.query(`Delete from Staffs where staffID = ${req.body.staffID}`, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
