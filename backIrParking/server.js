@@ -179,3 +179,10 @@ app.post('/addSticker', (req, res) => {
     res.json(result)
   });
 })
+app.post('/deleteLocation', (req, res) => {
+  con.query(`Delete from Location where locationID = ${req.body.locationID}`, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
