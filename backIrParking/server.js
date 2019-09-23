@@ -105,7 +105,7 @@ app.post('/addrule', (req, res) => {
   });
 })
 
-app.post('/addlocation', (req, res) => {
+app.post('/addLocationLabel', (req, res) => {
   console.log(req.body)
   con.query(`
     insert into Location (locationName,locationCode,stickerID) values('${req.body.locationName}', '${req.body.locationCode}',1)
@@ -117,7 +117,7 @@ app.post('/addlocation', (req, res) => {
 })
 
 app.get('/location', (req, res) => {
-  con.query("select  locationName, locationCode from Location", function (err, result, fields) {
+  con.query("select locationID, locationName, locationCode from Location", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -188,6 +188,7 @@ app.post('/addSticker', (req, res) => {
     res.json(result)
   });
 })
+
 app.post('/deleteLocation', (req, res) => {
   con.query(`Delete from Location where locationID = ${req.body.locationID}`, function (err, result, fields) {
     if (err) throw err;
