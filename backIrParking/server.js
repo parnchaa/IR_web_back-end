@@ -141,6 +141,15 @@ app.get('/carOwner', (req, res) => {
   });
 })
 
+app.get('/getSearchValue/:value', (req, res) => {
+  let key = req.params.value
+  con.query(`select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners where carOwnerFirstName like '%${key}%' || carOwnerLastName like '%${key}%'`, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
+
 app.post('/editCarOwner', (req, res) => {
   con.query(`UPDATE CarOwners SET carOwnerFirstName = '${req.body.carOwnerFirstName}', carOwnerLastName= '${req.body.carOwnerLastName}', carOwnerEmail= '${req.body.carOwnerEmail}',carOwnerTel= '${req.body.carOwnerTel}',carOwnerAddress= '${req.body.carOwnerAddress}' where carOwnerID = '${req.body.carOwnerID}'`, function (err, result, fields) {
     if (err) throw err;
