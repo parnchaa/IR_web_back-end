@@ -47,7 +47,7 @@ app.get('/staff', (req, res) => {
 })
 
 app.get('/securityguard', (req, res) => {
-  con.query("select firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
+  con.query("select staffID, firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -75,7 +75,7 @@ app.post('/addstaff', (req, res) => {
 
 
 app.post('/deleteStaff', (req, res) => {
-  console.log(req.body.ruleID)
+  // console.log(req.body.ruleID)
   con.query(`Delete from Staffs where staffID = ${req.body.staffID}`, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
@@ -105,7 +105,7 @@ app.post('/addrule', (req, res) => {
   });
 })
 
-app.post('/addlocation', (req, res) => {
+app.post('/addLocationLabel', (req, res) => {
   console.log(req.body)
   con.query(`
     insert into Location (locationName,locationCode,stickerID) values('${req.body.locationName}', '${req.body.locationCode}',1)
@@ -117,7 +117,7 @@ app.post('/addlocation', (req, res) => {
 })
 
 app.get('/location', (req, res) => {
-  con.query("select  locationName, locationCode from Location", function (err, result, fields) {
+  con.query("select locationID, locationName, locationCode from Location", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -135,6 +135,15 @@ app.post('/deleteRule', (req, res) => {
 
 app.get('/carOwner', (req, res) => {
   con.query("select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners", function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
+})
+
+app.get('/getSearchValue/:value', (req, res) => {
+  let key = req.params.value
+  con.query(`select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners where carOwnerFirstName like '%${key}%' || carOwnerLastName like '%${key}%'`, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     res.json(result)
@@ -176,6 +185,14 @@ app.post('/addSticker', (req, res) => {
     if (err) throw err;
     console.log(result);
 
+    res.json(result)
+  });
+})
+
+app.post('/deleteLocation', (req, res) => {
+  con.query(`Delete from Location where locationID = ${req.body.locationID}`, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
     res.json(result)
   });
 })
