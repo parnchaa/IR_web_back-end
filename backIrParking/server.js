@@ -18,8 +18,8 @@ var con = mysql.createConnection({
 });
 
 con.connect(err=> {
-  app.listen(8888, () => {
-    console.log('Start server at port 8888.')
+  app.listen(5000, () => {
+    console.log('Start server at port 5000.')
   })
 
   app.get('/problem', (req, res) => {
