@@ -179,7 +179,7 @@ app.post('/addSticker', (req, res) => {
   console.log(req.body)
   con.query(`
   insert into CarOwners (carOwnerFirstName,carOwnerLastName,carOwnerTel,carOwnerEmail,carOwnerAddress,registerDate,expiredDate,roleID,staffID)
-   VALUES('${req.body.carOwnerFname}', '${req.body.carOwnerLname}','${req.body.carOwnerTel}','${req.body.carOwnerEmail}','${req.body.carOwnerAddress}','1','1','1','1');
+   VALUES('${req.body.carOwnerFname}', '${req.body.carOwnerLname}','${req.body.carOwnerTel}','${req.body.carOwnerEmail}','${req.body.carOwnerAddress}','${req.body.registerDate}','${req.body.expireDate}','1','1');
   `,`insert into Car (licensePlate,province,carColor,carBrand,carModel,carOwnerID,stickerID)
   VALUES('${req.body.licensePlate}','1', '${req.body.carColor}','${req.body.brandCar}','${req.body.modelCar}','1','1')`, function (err, result, fields) {
     if (err) throw err;
