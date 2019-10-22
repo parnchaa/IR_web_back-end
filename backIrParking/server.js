@@ -94,7 +94,7 @@ app.post('/addrule', (req, res) => {
 
 app.post('/addLocationLabel', (req, res) => {
   con.query(`
-    insert into Location (locationName,locationCode,stickerID) values('${req.body.locationName}', '${req.body.locationCode}',1)
+    insert into Location (locationName,locationCode,stickerID) values('${req.body.locationName}', '${req.body.locationCode}','${req.body.stickerID}')
     `, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
@@ -106,6 +106,13 @@ app.get('/location', (req, res) => {
     if (err) throw err;
     res.json(result)
   });
+})
+
+app.get('/stickerColor', (req, res)=>{
+  con.query("SELECT s.colorOfSticker AS value, s.stickerID FROM Sticker s" , function (err, result, fields) {
+    if (err) throw err;
+    res.json(result)
+  })
 })
 
 app.post('/deleteRule', (req, res) => {
@@ -162,6 +169,8 @@ app.post('/addSticker', (req, res) => {
     res.json(result)
   });
 })
+
+
 
 app.post('/deleteLocation', (req, res) => {
   con.query(`Delete from Location where locationID = ${req.body.locationID}`, function (err, result, fields) {
