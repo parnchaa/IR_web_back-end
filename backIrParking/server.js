@@ -173,6 +173,13 @@ app.post('/editRule', (req, res) => {
     res.json(result)
   });
 })
+
+app.post('/extendLicense', (req, res) => {
+  con.query(`UPDATE CarOwners SET expiredDate = '${req.body.expiredDate}' where carOwnerID = '${req.body.carOwnerID}'`, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+    res.json(result)
+  });
 })
 
 app.post('/addSticker', (req, res) => {
@@ -195,4 +202,6 @@ app.post('/deleteLocation', (req, res) => {
     console.log(result);
     res.json(result)
   });
+})
+
 })
