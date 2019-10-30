@@ -85,7 +85,7 @@ app.get('/staff', (req, res) => {
 })
 
 app.get('/securityguard', (req, res) => {
-  con.query("select staffID, firstName,lastName,staffTel, staffEmail, staffPassword, staffImages from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
+  con.query("select staffID, firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
@@ -117,7 +117,7 @@ app.post('/deleteStaff', (req, res) => {
 
 app.post('/addsecurityguard', (req, res) => {
   con.query(`
-    insert into Staffs (firstName,lastName,staffTel,staffEmail,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', 'Security Guard',1 )
+    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}','${req.body.staffEmail}','${req.body.staffPassword}','${req.body.staffImages}', 'Security Guard',1 )
     `, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
