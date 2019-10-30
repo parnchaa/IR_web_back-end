@@ -5,6 +5,7 @@ var bodyParser = require('body-parser')
 const app = express()
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
+const jwt = require("jwt-simple");
  
 // parse application/json
 app.use(bodyParser.json())
@@ -21,6 +22,46 @@ con.connect(err=> {
   app.listen(5000, () => {
     console.log('Start server at port 5000.')
   })
+
+const loginMiddleWare = (req, res, next) => {
+  con.query(`select firstName, lastName, staffEmail, staffPassword,staffRole from Staffs where staffEmail = "${req.body.staffEmail}"`, function (err, result, fields) {
+    if (err) throw err;
+    if(result.length !== 0){
+      if(req.body.staffEmail === result[0].staffEmail && req.body.staffPassword === result[0].staffPassword){
+        req.staffRole = result[0].staffRole
+        req.firstName = result[0].firstName
+        req.lastName = result[0].lastName
+
+        next();
+      }
+      else{
+        res.json("wrong")
+      }
+    }
+    else{
+      res.json("wrong")
+    }
+  });
+ };
+ app.post("/login", loginMiddleWare, (req, res) => {
+  console.log("PPPPPPP",req.staffRole)
+    const payload = {
+      //  sub: req.body.username,
+      //  iat: new Date().getTime(),
+       role: req.staffRole,
+       firstName: req.firstName,
+       lastName:req.lastName
+    };
+    const SECRET = "MY_SECRET_KEY"
+    res.json(jwt.encode(payload, SECRET));
+ });
+
+ app.get('/userData', (req, res) => {
+  con.query(`select ${firstName}, ${lastName}, ${role} `, function (err, result, fields) {
+    if (err) throw err;
+    res.json(result)
+  });
+})
 
   app.get('/problem', (req, res) => {
     con.query("select p.problemID, p.dateOfProblem, p.timeOfProblem, p.scene, c.licensePlate, pt.allegation, s.firstName, p.problemDetails, p.evidenceImage from Staffs s JOIN Problems p on s.staffID = p.staffID JOIN ProblemType pt on p.problemTypeID = pt.problemTypeID join TrafficTicket t on p.ticketID = t.ticketID join Car c on t.carID = c.carID", function (err, result, fields) {
@@ -44,7 +85,7 @@ app.get('/staff', (req, res) => {
 })
 
 app.get('/securityguard', (req, res) => {
-  con.query("select staffID, firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
+  con.query("select staffID, firstName,lastName,staffTel, staffEmail, staffPassword, staffImages from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
