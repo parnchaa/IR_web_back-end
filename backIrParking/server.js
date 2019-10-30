@@ -100,25 +100,25 @@ app.get('/rule', (req, res) => {
 })
 
 app.post('/addstaff', (req, res) => {
-  con.query(`
-    insert into Staffs (firstName,lastName,staffTel,staffEmail,staffRole,organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}', 'Administrator', 1)
+  bcrypt.hash(req.body.staffPassword, 10, function(err, hash) {
+    con.query(`
+    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole,organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}','${hash}','${req.body.staffImages}', 'Administrator', 1)
     `, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   }); 
+  })
 })
 
 app.post('/addsecurityguard', (req, res) => {
-  let password = ""
   bcrypt.hash(req.body.staffPassword, 10, function(err, hash) {
-    password += hash
-  })
-  con.query(`
-    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}','${req.body.staffEmail}','${password}','${req.body.staffImages}', 'Security Guard',1 )
+    con.query(`
+    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}','${req.body.staffEmail}','${hash}','${req.body.staffImages}', 'Security Guard',1 )
     `, function (err, result, fields) {
     if (err) throw err;
-    res.json(result)
+    res.json(result);
   }); 
+  })
 })
 
 app.post('/deleteStaff', (req, res) => {
