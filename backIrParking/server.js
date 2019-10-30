@@ -6,6 +6,7 @@ const app = express()
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
 const jwt = require("jwt-simple");
+const bcrypt = require('bcrypt');
  
 // parse application/json
 app.use(bodyParser.json())
@@ -107,21 +108,24 @@ app.post('/addstaff', (req, res) => {
   }); 
 })
 
+app.post('/addsecurityguard', (req, res) => {
+  let password = ""
+  bcrypt.hash(req.body.staffPassword, 10, function(err, hash) {
+    password = hash
+  })
+  con.query(`
+    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}','${req.body.staffEmail}','${password}','${req.body.staffImages}', 'Security Guard',1 )
+    `, function (err, result, fields) {
+    if (err) throw err;
+    res.json(result)
+  }); 
+})
 
 app.post('/deleteStaff', (req, res) => {
   con.query(`Delete from Staffs where staffID = ${req.body.staffID}`, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
-})
-
-app.post('/addsecurityguard', (req, res) => {
-  con.query(`
-    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}','${req.body.staffEmail}','${req.body.staffPassword}','${req.body.staffImages}', 'Security Guard',1 )
-    `, function (err, result, fields) {
-    if (err) throw err;
-    res.json(result)
-  }); 
 })
 
 app.post('/addrule', (req, res) => {
