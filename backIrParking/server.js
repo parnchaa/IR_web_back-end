@@ -51,7 +51,7 @@ const loginMiddleWare = (req, res, next) => {
 
 
     let match = bcrypt.compareSync(req.body.staffPassword, hashPassword)
-    // console.log(match);
+    console.log(match);
     
     if(match){
       con.query(`select firstName, lastName, staffEmail,staffRole from Staffs where staffEmail = "${req.body.staffEmail}"`, function (err, result, fields) {
@@ -73,6 +73,8 @@ const loginMiddleWare = (req, res, next) => {
           res.json("wrong")
         }
       });
+    }else{
+      res.json("wrong")
     }
 
   })
