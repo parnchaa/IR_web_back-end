@@ -44,10 +44,16 @@ con.connect(err=> {
 const loginMiddleWare = (req, res, next) => {
   let cipherPassword = `SELECT s.staffPassword FROM Staffs s WHERE s.staffEmail = "${req.body.staffEmail}"`
   con.query(cipherPassword, function (err, result) {
+    console.log("erwerewr", req.body.staffPassword, req.body.staffEmail, result[0].staffPassword );
+    
     if (err) throw err;
     let hashPassword = result[0].staffPassword
-    let macth = bcrypt.compareSync(req.body.password, hashPassword)
-    if(macth){
+
+
+    let match = bcrypt.compareSync(req.body.staffPassword, hashPassword)
+    // console.log(match);
+    
+    if(match){
       con.query(`select firstName, lastName, staffEmail,staffRole from Staffs where staffEmail = "${req.body.staffEmail}"`, function (err, result, fields) {
         if (err) throw err;
     
