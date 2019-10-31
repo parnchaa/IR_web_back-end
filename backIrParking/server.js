@@ -175,6 +175,15 @@ app.post('/addrule', (req, res) => {
   });
 })
 
+app.post('/addSticker', (req, res) => {
+  con.query(`
+    insert into Sticker (typeOfSticker ,colorOfSticker ,ruleID) values('${req.body.typeOfSticker}', '${req.body.colorOfSticker}', 1)
+    `, function (err, result, fields) {
+    if (err) throw err;
+    res.json(result)
+  });
+})
+
 app.post('/addLocationLabel', (req, res) => {
   con.query(`
     insert into Location (locationName,locationCode,stickerID) values('${req.body.locationName}', '${req.body.locationCode}','${req.body.stickerID}')
