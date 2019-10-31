@@ -7,6 +7,9 @@ app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
 const jwt = require("jwt-simple");
 const bcrypt = require('bcrypt');
+const passport = require("passport");
+const ExtractJwt = require("passport-jwt").ExtractJwt;
+const JwtStrategy = require("passport-jwt").Strategy;
  
 // parse application/json
 app.use(bodyParser.json())
@@ -24,26 +27,52 @@ con.connect(err=> {
     console.log('Start server at port 5000.')
   })
 
-const loginMiddleWare = (req, res, next) => {
-  con.query(`select firstName, lastName, staffEmail, staffPassword,staffRole from Staffs where staffEmail = "${req.body.staffEmail}"`, function (err, result, fields) {
-    if (err) throw err;
-    if(result.length !== 0){
-      if(req.body.staffEmail === result[0].staffEmail && req.body.staffPassword === result[0].staffPassword){
-        req.staffRole = result[0].staffRole
-        req.firstName = result[0].firstName
-        req.lastName = result[0].lastName
+  const SECRET = "MY_SECRET_KEY"
 
-        next();
-      }
-      else{
-        res.json("wrong")
-      }
-    }
-    else{
-      res.json("wrong")
-    }
+  const jwtOptions = {
+    jwtFromRequest: ExtractJwt.fromHeader("authorization"),
+    secretOrKey: SECRET
+  };
+
+  const jwtAuth = new JwtStrategy(jwtOptions, (payload, done) => {
+    if (payload.sub !== undefined) done(null, true);
+    else done(null, false);
   });
+
+  passport.use(jwtAuth);
+
+const loginMiddleWare = (req, res, next) => {
+  let cipherPassword = `SELECT s.staffPassword FROM Staffs s WHERE s.staffEmail = "${req.body.staffEmail}"`
+  con.query(cipherPassword, function (err, result) {
+    if (err) throw err;
+    let hashPassword = result[0].staffPassword
+    let macth = bcrypt.compareSync(req.body.password, hashPassword)
+    if(macth){
+      con.query(`select firstName, lastName, staffEmail,staffRole from Staffs where staffEmail = "${req.body.staffEmail}"`, function (err, result, fields) {
+        if (err) throw err;
+    
+        if(result.length !== 0){
+          if(req.body.staffEmail === result[0].staffEmail){
+            req.staffRole = result[0].staffRole
+            req.firstName = result[0].firstName
+            req.lastName = result[0].lastName
+    
+            next();
+          }
+          else{
+            res.json("wrong")
+          }
+        }
+        else{
+          res.json("wrong")
+        }
+      });
+    }
+
+  })
+
  };
+
  app.post("/login", loginMiddleWare, (req, res) => {
   console.log("PPPPPPP",req.staffRole)
     const payload = {
@@ -53,12 +82,13 @@ const loginMiddleWare = (req, res, next) => {
        firstName: req.firstName,
        lastName:req.lastName
     };
-    const SECRET = "MY_SECRET_KEY"
     res.json(jwt.encode(payload, SECRET));
  });
 
- app.get('/userData', (req, res) => {
-  con.query(`select ${firstName}, ${lastName}, ${role} `, function (err, result, fields) {
+ const requireJWTAuth = passport.authenticate("jwt", {session:false});
+
+ app.get('/userData', requireJWTAuth ,  (req, res) => {
+  con.query(`select ${firstName}, ${lastName}, ${role} from Staffs `, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
@@ -100,9 +130,9 @@ app.get('/rule', (req, res) => {
 })
 
 app.post('/addstaff', (req, res) => {
-  bcrypt.hash(req.body.staffPassword, 10, function(err, hash) {
+  bcrypt.hash(req.body.staffPassword, 10, function(err, hashPassword) {
     con.query(`
-    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole,organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}','${hash}','${req.body.staffImages}', 'Administrator', 1)
+    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole,organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}','${hashPassword}','${req.body.staffImages}', 'Administrator', 1)
     `, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
@@ -111,9 +141,9 @@ app.post('/addstaff', (req, res) => {
 })
 
 app.post('/addsecurityguard', (req, res) => {
-  bcrypt.hash(req.body.staffPassword, 10, function(err, hash) {
+  bcrypt.hash(req.body.staffPassword, 10, function(err, hashPassword) {
     con.query(`
-    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}','${req.body.staffEmail}','${hash}','${req.body.staffImages}', 'Security Guard',1 )
+    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}','${req.body.staffEmail}','${hashPassword}','${req.body.staffImages}', 'Security Guard',1 )
     `, function (err, result, fields) {
     if (err) throw err;
     res.json(result);
