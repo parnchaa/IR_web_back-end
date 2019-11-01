@@ -57,17 +57,7 @@ const loginMiddleWare = (req, res, next) => {
         if (err) throw err;
     
         if(result.length !== 0){
-          if(req.body.staffEmail === result[0].staffEmail){
-            req.staffRole = result[0].staffRole
-            req.firstName = result[0].firstName
-            req.lastName = result[0].lastName
-            req.staffImages = result[0].staffImages
-    
-            next();
-          }
-          else{
-            res.json("wrong")
-          }
+          next();
         }
         else{
           res.json("wrong")
@@ -82,22 +72,18 @@ const loginMiddleWare = (req, res, next) => {
  };
 
  app.post("/login", loginMiddleWare, (req, res) => {
-  console.log("PPPPPPP",req.staffImages)
     const payload = {
-      //  sub: req.body.username,
-      //  iat: new Date().getTime(),
-       role: req.staffRole,
-       firstName: req.firstName,
-       lastName:req.lastName,
-       staffImages: req.staffImages
+       sub: req.body.staffEmail,
+       iat: new Date().getTime()
     };
     res.json(jwt.encode(payload, SECRET));
  });
 
  const requireJWTAuth = passport.authenticate("jwt", {session:false});
 
- app.get('/userData', requireJWTAuth ,  (req, res) => {
-  con.query(`select ${firstName}, ${lastName}, ${role} from Staffs `, function (err, result, fields) {
+ app.get('/userData/:email', requireJWTAuth ,  (req, res) => {
+  let email = req.params.email
+  con.query(`select firstName, lastName, staffEmail,staffRole,staffImages from Staffs where staffEmail = "${email}"`, function (err, result, fields) {  
     if (err) throw err;
     res.json(result)
   });
@@ -224,8 +210,12 @@ app.get('/carOwner', (req, res) => {
 
 app.get('/getSearchValue/:value', (req, res) => {
   let key = req.params.value
+  console.log(key, " key");
+  
   con.query(`select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners where carOwnerFirstName like '%${key}%' || carOwnerLastName like '%${key}%'`, function (err, result, fields) {
     if (err) throw err;
+    console.log(result);
+    
     res.json(result)
   });
 })
