@@ -195,7 +195,7 @@ app.post('/addLocationLabel', (req, res) => {
 })
 
 app.get('/location', (req, res) => {
-  con.query("select locationID, locationName, locationCode from Location", function (err, result, fields) {
+  con.query("select l.locationID, l.locationName, l.locationCode, s.colorOfSticker from Location l join Sticker s on l.stickerID = s.stickerID", function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
