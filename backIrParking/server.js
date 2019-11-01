@@ -211,7 +211,6 @@ app.get('/carOwner', (req, res) => {
 app.get('/getSearchValue/:value', (req, res) => {
   let key = req.params.value
   console.log(key, " key");
-  
   con.query(`select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners where carOwnerFirstName like '%${key}%' || carOwnerLastName like '%${key}%'`, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
@@ -249,7 +248,7 @@ app.post('/extendLicense', (req, res) => {
   });
 })
 
-app.post('/addSticker', (req, res) => {
+app.post('/addCarowner', (req, res) => {
   con.query(`
   insert into CarOwners (carOwnerFirstName,carOwnerLastName,carOwnerTel,carOwnerEmail,carOwnerAddress,registerDate,expiredDate,roleID,staffID)
    VALUES('${req.body.carOwnerFname}', '${req.body.carOwnerLname}','${req.body.carOwnerTel}','${req.body.carOwnerEmail}','${req.body.carOwnerAddress}','${req.body.registerDate}','${req.body.expireDate}','1','1');
