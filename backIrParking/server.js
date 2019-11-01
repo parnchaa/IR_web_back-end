@@ -44,8 +44,7 @@ con.connect(err=> {
 const loginMiddleWare = (req, res, next) => {
   let cipherPassword = `SELECT s.staffPassword FROM Staffs s WHERE s.staffEmail = "${req.body.staffEmail}"`
   con.query(cipherPassword, function (err, result) {
-    console.log("erwerewr", req.body.staffPassword, req.body.staffEmail, result[0].staffPassword );
-    
+
     if (err) throw err;
     let hashPassword = result[0].staffPassword
 
@@ -54,7 +53,7 @@ const loginMiddleWare = (req, res, next) => {
     console.log(match);
     
     if(match){
-      con.query(`select firstName, lastName, staffEmail,staffRole from Staffs where staffEmail = "${req.body.staffEmail}"`, function (err, result, fields) {
+      con.query(`select firstName, lastName, staffEmail,staffRole,staffImages from Staffs where staffEmail = "${req.body.staffEmail}"`, function (err, result, fields) {
         if (err) throw err;
     
         if(result.length !== 0){
@@ -62,6 +61,7 @@ const loginMiddleWare = (req, res, next) => {
             req.staffRole = result[0].staffRole
             req.firstName = result[0].firstName
             req.lastName = result[0].lastName
+            req.staffImages = result[0].staffImages
     
             next();
           }
@@ -82,13 +82,14 @@ const loginMiddleWare = (req, res, next) => {
  };
 
  app.post("/login", loginMiddleWare, (req, res) => {
-  console.log("PPPPPPP",req.staffRole)
+  console.log("PPPPPPP",req.staffImages)
     const payload = {
       //  sub: req.body.username,
       //  iat: new Date().getTime(),
        role: req.staffRole,
        firstName: req.firstName,
-       lastName:req.lastName
+       lastName:req.lastName,
+       staffImages: req.staffImages
     };
     res.json(jwt.encode(payload, SECRET));
  });
