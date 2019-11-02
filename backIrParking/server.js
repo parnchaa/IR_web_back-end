@@ -41,33 +41,44 @@ con.connect(err=> {
 
   passport.use(jwtAuth);
 
-const loginMiddleWare = (req, res, next) => {
-  let cipherPassword = `SELECT s.staffPassword FROM Staffs s WHERE s.staffEmail = "${req.body.staffEmail}"`
-  con.query(cipherPassword, function (err, result) {
-
-    if (err) throw err;
-    let hashPassword = result[0].staffPassword
-
-
-    let match = bcrypt.compareSync(req.body.staffPassword, hashPassword)
-    console.log(match);
-    
-    if(match){
-      con.query(`select firstName, lastName, staffEmail,staffRole,staffImages from Staffs where staffEmail = "${req.body.staffEmail}"`, function (err, result, fields) {
+  const loginMiddleWare = (req, res, next) => {
+  
+  con.query(`select firstName, lastName, staffEmail,staffRole,staffImages from Staffs where staffEmail = "${req.body.staffEmail}"`, function (err, result, fields){
+     if(err) throw err
+     if(result.length !== 0){
+      let cipherPassword = `SELECT s.staffPassword FROM Staffs s WHERE s.staffEmail = "${req.body.staffEmail}"`
+      con.query(cipherPassword, function (err, result) {
+        
         if (err) throw err;
+        let hashPassword = result[0].staffPassword
     
-        if(result.length !== 0){
-          next();
-        }
-        else{
+    
+        let match = bcrypt.compareSync(req.body.staffPassword, hashPassword)
+        console.log(match);
+        
+        if(match){
+          con.query(`select firstName, lastName, staffEmail,staffRole,staffImages from Staffs where staffEmail = "${req.body.staffEmail}"`, function (err, result, fields) {
+            if (err) throw err;
+        
+            if(result.length !== 0){
+              next();
+            }
+            else{
+              res.json("wrong")
+            }
+          });
+        }else{
           res.json("wrong")
         }
-      });
-    }else{
-      res.json("wrong")
-    }
-
+    
+      })
+     }
+     else{
+       res.json("wrong")
+     }
   })
+
+  
 
  };
 
