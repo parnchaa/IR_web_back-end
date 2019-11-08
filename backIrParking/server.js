@@ -94,14 +94,16 @@ con.connect(err=> {
 
  app.get('/userData/:email', requireJWTAuth ,  (req, res) => {
   let email = req.params.email
-  con.query(`select firstName, lastName, staffEmail,staffRole,staffImages from Staffs where staffEmail = "${email}"`, function (err, result, fields) {  
+  con.query(`select s.staffID, s.firstName, s.lastName, s.staffEmail, s.staffRole, s.staffImages, s.organizationID, o.organizationName from Staffs s join Organizations o on o.organizationID = s.organizationID where s.staffEmail = "${email}"`, function (err, result, fields) {  
     if (err) throw err;
     res.json(result)
   });
 })
 
-  app.get('/problem', (req, res) => {
-    con.query("select p.problemID, p.dateOfProblem, p.timeOfProblem, p.scene, c.licensePlate, pt.allegation, s.firstName, p.problemDetails, p.evidenceImage from Staffs s JOIN Problems p on s.staffID = p.staffID JOIN ProblemType pt on p.problemTypeID = pt.problemTypeID join TrafficTicket t on p.ticketID = t.ticketID join Car c on t.carID = c.carID", function (err, result, fields) {
+  app.get('/problem/:value', (req, res) => {
+    let key = req.params.value
+    console.log(key,'key')
+    con.query(`select p.problemID, p.dateOfProblem, p.timeOfProblem, p.scene, c.licensePlate, ir.ruleName, s.firstName, p.problemDetails, p.evidenceImage from Staffs s JOIN Problems p on s.staffID = p.staffID JOIN InternalRules ir on p.ruleID = ir.ruleID join TrafficTicket t on p.ticketID = t.ticketID join Car c on t.carID = c.carID where p.organizationID = "${key}"`, function (err, result, fields) {
       if (err) throw err;
       res.json(result)
     });
@@ -129,7 +131,7 @@ app.get('/securityguard', (req, res) => {
 })
 
 app.get('/rule', (req, res) => {
-  con.query("select ruleID ,ruleName, maxWarning, price, ruleDetails from InternalRules", function (err, result, fields) {
+  con.query("select ruleID ,ruleName, maxWarning, price from InternalRules", function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
@@ -166,7 +168,7 @@ app.post('/deleteStaff', (req, res) => {
 
 app.post('/addrule', (req, res) => {
   con.query(`
-    insert into InternalRules (ruleName ,maxWarning ,price ,ruleDetails, problemTypeID,organizationID) values('${req.body.ruleName}', '${req.body.maxWarning}', '${req.body.price}', '${req.body.ruleDetails}', 1 , 1)
+    insert into InternalRules (ruleName ,maxWarning ,price , problemTypeID,organizationID) values('${req.body.ruleName}', '${req.body.maxWarning}', '${req.body.price}', '${req.body.ruleDetails}', 1 , 1)
     `, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
@@ -212,17 +214,19 @@ app.post('/deleteRule', (req, res) => {
   });
 })
 
-app.get('/carOwner', (req, res) => {
-  con.query("select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners", function (err, result, fields) {
+app.get('/carOwner/:value', (req, res) => {
+  let key = req.params.value
+  con.query(`select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners where organizationID = ${key}`, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
 })
 
-app.get('/getSearchValue/:value', (req, res) => {
+app.get('/getSearchValue/:value/:id', (req, res) => {
   let key = req.params.value
+  let id = req.params.id
   console.log(key, " key");
-  con.query(`select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners where carOwnerFirstName like '%${key}%' || carOwnerLastName like '%${key}%'`, function (err, result, fields) {
+  con.query(`select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners where carOwnerFirstName like '%${key}%' or carOwnerLastName like '%${key}%' and organizationID = ${id}`, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
     
@@ -245,7 +249,7 @@ app.post('/deleteCarOwner', (req, res) => {
 })
 
 app.post('/editRule', (req, res) => {
-  con.query(`UPDATE InternalRules SET ruleName = '${req.body.ruleName}', maxWarning= '${req.body.maxWarning}', price= '${req.body.price}',ruleDetails= '${req.body.ruleDetails}' where ruleID = '${req.body.ruleID}'`, function (err, result, fields) {
+  con.query(`UPDATE InternalRules SET ruleName = '${req.body.ruleName}', maxWarning= '${req.body.maxWarning}', price= '${req.body.price}' where ruleID = '${req.body.ruleID}'`, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
@@ -261,16 +265,30 @@ app.post('/extendLicense', (req, res) => {
 
 app.post('/addCarowner', (req, res) => {
   con.query(`
-  insert into CarOwners (carOwnerFirstName,carOwnerLastName,carOwnerTel,carOwnerEmail,carOwnerAddress,registerDate,expiredDate,roleID,staffID)
-   VALUES('${req.body.carOwnerFname}', '${req.body.carOwnerLname}','${req.body.carOwnerTel}','${req.body.carOwnerEmail}','${req.body.carOwnerAddress}','${req.body.registerDate}','${req.body.expireDate}','1','1');
-  `,`insert into Car (licensePlate,province,carColor,carBrand,carModel,carOwnerID,stickerID)
-  VALUES('${req.body.licensePlate}','1', '${req.body.carColor}','${req.body.brandCar}','${req.body.modelCar}','1','1')`, function (err, result, fields) {
+  insert into CarOwners (carOwnerFirstName,carOwnerLastName,carOwnerTel,carOwnerEmail,carOwnerAddress,registerDate,expiredDate,organizationID)
+   VALUES('${req.body.carOwnerFname}', '${req.body.carOwnerLname}','${req.body.carOwnerTel}','${req.body.carOwnerEmail}','${req.body.carOwnerAddress}','${req.body.registerDate}','${req.body.expireDate}','${req.body.organizationID}');
+  `, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
 })
 
+app.get('/lastCarOwnerId/:organizationID', (req,res)=>{
+  let key = req.params.organizationID
+  con.query(`select MAX(carOwnerID) AS lastID from CarOwners where organizationID = ${key}`, function (err, result) {
+    if(err) throw err
+    res.json(result) 
+  })
+})
 
+app.post('/addCar', (req, res) => {
+  
+  con.query(`insert into Car (licensePlate,province,carColor,carBrand,carModel,carOwnerID,stickerID,organizationID)
+  VALUES('${req.body.licensePlate}','กรุงเทพมหานคร','${req.body.carColor}','${req.body.brandCar}','${req.body.modelCar}',${req.body.carOwnerID},1,${req.body.organizationID})`, function (err, result, fields) {
+    if (err) throw err;
+    res.json(result)
+  });
+})
 
 app.post('/deleteLocation', (req, res) => {
   con.query(`Delete from Location where locationID = ${req.body.locationID}`, function (err, result, fields) {
