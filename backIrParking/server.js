@@ -116,22 +116,25 @@ app.post('/deleteEvent', (req, res) => {
   });
 })
 
-app.get('/staff', (req, res) => {
-  con.query("select staffID, firstName,lastName, staffTel, staffEmail from Staffs where staffRole = 'Administrator'", function (err, result, fields) {
+app.get('/staff/:value', (req, res) => {
+  let key = req.params.value
+  con.query(`select staffID, firstName,lastName, staffTel, staffEmail from Staffs where staffRole = 'Administrator' and organizationID = ${key}`, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
 })
 
-app.get('/securityguard', (req, res) => {
-  con.query("select staffID, firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard'", function (err, result, fields) {
+app.get('/securityguard/:value', (req, res) => {
+  let key = req.params.value
+  con.query(`select staffID, firstName,lastName,staffTel, staffEmail from Staffs where staffRole = 'Security Guard' and organizationID = ${key}`, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
 })
 
-app.get('/rule', (req, res) => {
-  con.query("select ruleID ,ruleName, maxWarning, price from InternalRules", function (err, result, fields) {
+app.get('/rule/:value', (req, res) => {
+  let key = req.params.value
+  con.query(`select ruleID ,ruleName, maxWarning, price from InternalRules where organizationID = ${key}`, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
@@ -140,7 +143,7 @@ app.get('/rule', (req, res) => {
 app.post('/addstaff', (req, res) => {
   bcrypt.hash(req.body.staffPassword, 10, function(err, hashPassword) {
     con.query(`
-    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole,organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}','${hashPassword}','${req.body.staffImages}', 'Administrator', 1)
+    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole,organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}', '${req.body.staffEmail}','${hashPassword}','${req.body.staffImages}', 'Administrator', '${req.body.organizationID}')
     `, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
@@ -151,7 +154,7 @@ app.post('/addstaff', (req, res) => {
 app.post('/addsecurityguard', (req, res) => {
   bcrypt.hash(req.body.staffPassword, 10, function(err, hashPassword) {
     con.query(`
-    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}','${req.body.staffEmail}','${hashPassword}','${req.body.staffImages}', 'Security Guard',1 )
+    insert into Staffs (firstName,lastName,staffTel,staffEmail, staffPassword, staffImages,staffRole, organizationID) values('${req.body.firstName}', '${req.body.lastName}', '${req.body.staffTel}','${req.body.staffEmail}','${hashPassword}','${req.body.staffImages}', 'Security Guard','${req.body.organizationID}' )
     `, function (err, result, fields) {
     if (err) throw err;
     res.json(result);
@@ -168,16 +171,24 @@ app.post('/deleteStaff', (req, res) => {
 
 app.post('/addrule', (req, res) => {
   con.query(`
-    insert into InternalRules (ruleName ,maxWarning ,price , problemTypeID,organizationID) values('${req.body.ruleName}', '${req.body.maxWarning}', '${req.body.price}', '${req.body.ruleDetails}', 1 , 1)
+    insert into InternalRules (ruleName ,price,maxWarning  ,organizationID) values('${req.body.ruleName}', '${req.body.price}', '${req.body.maxWarning}', '${req.body.organizationID}')
     `, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
 })
 
+app.get('/ruleId/:organizationID', (req,res)=>{
+  let key = req.params.organizationID
+  con.query(`select MIN(ruleID) AS ruleID from InternalRules where organizationID = ${key}`, function (err, result) {
+    if(err) throw err
+    res.json(result) 
+  })
+})
+
 app.post('/addSticker', (req, res) => {
   con.query(`
-    insert into Sticker (typeOfSticker ,colorOfSticker ,ruleID) values('${req.body.typeOfSticker}', '${req.body.colorOfSticker}', 1)
+    insert into Sticker (typeOfSticker ,colorOfSticker ,ruleID, organizationID) values('${req.body.typeOfSticker}', '${req.body.colorOfSticker}', '${req.body.ruleID}','${req.body.organizationID}')
     `, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
@@ -193,15 +204,17 @@ app.post('/addLocationLabel', (req, res) => {
   });
 })
 
-app.get('/location', (req, res) => {
-  con.query("select l.locationID, l.locationName, l.locationCode, s.colorOfSticker from Location l join Sticker s on l.stickerID = s.stickerID", function (err, result, fields) {
+app.get('/location/:value', (req, res) => {
+  let key = req.params.value
+  con.query(`select l.locationID, l.locationName, l.locationCode, s.colorOfSticker from Location l join Sticker s on l.stickerID = s.stickerID where l.organizationID = ${key}`, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
 })
 
-app.get('/stickerColor', (req, res)=>{
-  con.query("SELECT s.colorOfSticker AS value, s.stickerID FROM Sticker s" , function (err, result, fields) {
+app.get('/stickerColor/:value', (req, res)=>{
+  let key = req.params.value
+  con.query(`SELECT s.colorOfSticker AS value, s.stickerID FROM Sticker s where organizationID = ${key}` , function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   })
