@@ -188,7 +188,7 @@ app.get('/ruleId/:organizationID', (req,res)=>{
 
 app.get('/stickerName/:value', (req, res) => {
   let key = req.params.value
-  con.query(`select stickerID,typeOfSticker,colorOfSticker from Sticker where organizationID = ${key}`, function (err, result, fields) {
+  con.query(`select stickerID,typeOfSticker,colorOfSticker AS value from Sticker where organizationID = ${key}`, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
@@ -313,7 +313,7 @@ app.get('/lastCarOwnerId/:organizationID', (req,res)=>{
 app.post('/addCar', (req, res) => {
   
   con.query(`insert into Car (licensePlate,province,carColor,carBrand,carModel,carOwnerID,stickerID,organizationID)
-  VALUES('${req.body.licensePlate}','กรุงเทพมหานคร','${req.body.carColor}','${req.body.brandCar}','${req.body.modelCar}',${req.body.carOwnerID},${req.body.stickerID},${req.body.organizationID})`, function (err, result, fields) {
+  VALUES('${req.body.licensePlate}','${req.body.province}','${req.body.carColor}','${req.body.brandCar}','${req.body.modelCar}',${req.body.carOwnerID},${req.body.stickerID},${req.body.organizationID})`, function (err, result, fields) {
     if (err) throw err;
     res.json(result)
   });
