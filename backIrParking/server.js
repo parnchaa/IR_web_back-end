@@ -186,6 +186,14 @@ app.get('/ruleId/:organizationID', (req,res)=>{
   })
 })
 
+app.get('/stickerName/:value', (req, res) => {
+  let key = req.params.value
+  con.query(`select stickerID,typeOfSticker from Sticker where organizationID = ${key}`, function (err, result, fields) {
+    if (err) throw err;
+    res.json(result)
+  });
+})
+
 app.post('/addSticker', (req, res) => {
   con.query(`
     insert into Sticker (typeOfSticker ,colorOfSticker ,ruleID, organizationID) values('${req.body.typeOfSticker}', '${req.body.colorOfSticker}', '${req.body.ruleID}','${req.body.organizationID}')
