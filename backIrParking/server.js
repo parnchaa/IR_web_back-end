@@ -54,8 +54,7 @@ con.connect(err=> {
     
     
         let match = bcrypt.compareSync(req.body.staffPassword, hashPassword)
-        console.log(match);
-        
+      
         if(match){
           con.query(`select firstName, lastName, staffEmail,staffRole,staffImages from Staffs where staffEmail = "${req.body.staffEmail}"`, function (err, result, fields) {
             if (err) throw err;
@@ -254,9 +253,7 @@ app.get('/getSearchValue/:value/:id', (req, res) => {
   let key = req.params.value
   let id = req.params.id
   con.query(`select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners where carOwnerFirstName like '%${key}%' or carOwnerLastName like '%${key}%' and organizationID = ${id}`, function (err, result, fields) {
-    if (err) throw err;
-    console.log(result);
-    
+    if (err) throw err;   
     res.json(result)
   });
 })
@@ -285,7 +282,6 @@ app.post('/editRule', (req, res) => {
 app.post('/extendLicense', (req, res) => {
   con.query(`UPDATE CarOwners SET expiredDate = '${req.body.expiredDate}' where carOwnerID = '${req.body.carOwnerID}'`, function (err, result, fields) {
     if (err) throw err;
-    console.log(result);
     res.json(result)
   });
 })
