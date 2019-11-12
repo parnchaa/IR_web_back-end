@@ -102,7 +102,6 @@ con.connect(err=> {
 
   app.get('/problem/:value', (req, res) => {
     let key = req.params.value
-    console.log(key,'key')
     con.query(`select p.problemID, p.dateOfProblem, p.timeOfProblem, p.scene, c.licensePlate, ir.ruleName, s.firstName, p.problemDetails, p.evidenceImage from Staffs s JOIN Problems p on s.staffID = p.staffID JOIN InternalRules ir on p.ruleID = ir.ruleID join TrafficTicket t on p.ticketID = t.ticketID join Car c on t.carID = c.carID where p.organizationID = "${key}"`, function (err, result, fields) {
       if (err) throw err;
       res.json(result)
@@ -254,7 +253,6 @@ app.get('/carOwner/:value', (req, res) => {
 app.get('/getSearchValue/:value/:id', (req, res) => {
   let key = req.params.value
   let id = req.params.id
-  console.log(key, " key");
   con.query(`select carOwnerID, carOwnerFirstName, carOwnerLastName, carOwnerTel, carOwnerEmail,carOwnerAddress, registerDate, expiredDate from CarOwners where carOwnerFirstName like '%${key}%' or carOwnerLastName like '%${key}%' and organizationID = ${id}`, function (err, result, fields) {
     if (err) throw err;
     console.log(result);
