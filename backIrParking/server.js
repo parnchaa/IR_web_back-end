@@ -210,7 +210,7 @@ app.post('/addSticker', (req, res) => {
 
 app.post('/addLocationLabel', (req, res) => {
   con.query(`
-    insert into Location (locationName,locationCode,stickerID) values('${req.body.locationName}', '${req.body.locationCode}','${req.body.stickerID}')
+    insert into Location (locationName,locationCode,stickerID, organizationID ) values('${req.body.locationName}', '${req.body.locationCode}','${req.body.stickerID}',${req.body.organizationID})
     `, function (err, result) {
     if (err) throw err;
     res.json(result)
