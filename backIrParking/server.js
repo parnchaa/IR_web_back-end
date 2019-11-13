@@ -265,6 +265,16 @@ app.get('/getSearchValue/:value/:id', (req, res) => {
   });
 })
 
+app.get('/getSearchLicensePlate/:value/:id', (req, res) => {
+  let key = req.params.value
+  let id = req.params.id
+  con.query(`select p.problemID, p.dateOfProblem, p.timeOfProblem, p.scene, c.licensePlate, ir.ruleName, s.firstName, p.problemDetails, p.evidenceImage from Staffs s JOIN Problems p on s.staffID = p.staffID JOIN InternalRules ir on p.ruleID = ir.ruleID join TrafficTicket t on p.ticketID = t.ticketID join Car c on t.carID = c.carID where c.licensePlate like '%${key}%' AND p.organizationID = ${id}`, function (err, result) {
+    if (err) throw err;   
+    res.json(result)
+  });
+})
+
+
 app.post('/editCarOwner', (req, res) => {
   con.query(`UPDATE CarOwners SET carOwnerFirstName = '${req.body.carOwnerFirstName}', carOwnerLastName= '${req.body.carOwnerLastName}', carOwnerEmail= '${req.body.carOwnerEmail}',carOwnerTel= '${req.body.carOwnerTel}',carOwnerAddress= '${req.body.carOwnerAddress}' where carOwnerID = '${req.body.carOwnerID}'`, function (err, result) {
     if (err) throw err;
