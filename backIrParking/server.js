@@ -6,14 +6,13 @@ const app = express()
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
 const jwt = require("jwt-simple");
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const passport = require("passport");
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const JwtStrategy = require("passport-jwt").Strategy;
  
 // parse application/json
 app.use(bodyParser.json())
-
 
 var con = mysql.createConnection({
   host: "35.247.180.61",
@@ -23,7 +22,7 @@ var con = mysql.createConnection({
 });
 
 con.connect(err=> {
-  app.listen(5000, () => {
+  app.listen(process.env.PORT || 5000, () => {
     console.log('Start server at port 5000.')
   })
 
